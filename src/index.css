@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+body {
+  background-color: #014866;
+}
+
+.wallet-adapter-button-trigger {
+  background-color: #c7f283 !important;
+  color: #0a0e13 !important;
+  padding: 0rem 1.2rem !important;
+  border-radius: 8px !important;
+  font-size: 0.9rem !important;
+}
+
+.wallet-adapter-button-trigger img {
+  width: 20px !important;
+}
