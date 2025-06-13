@@ -15,7 +15,7 @@ export const Button = ({
 }: IButton) => {
   return (
     <button
-      className={`px-6 py-3 bg-zinc-800 text-zinc-100 rounded-md  ${className} ${
+      className={`px-6 py-3.5 text-[#0A0E13] bg-[#C7F283] font-medium rounded-xl  ${className} ${
         !disabled && "cursor-pointer"
       }`}
       type={type}
