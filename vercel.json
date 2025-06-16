@@ -22,9 +22,15 @@
       "src": "/api/(.*)",
       "dest": "backend/index.ts"
     },
+
+    {
+      "src": "/",
+      "dest": "/frontend/dist/index.html"
+    },
+
     {
       "src": "/(.*)",
-      "dest": "/frontend/dist/$1"
+      "dest": "/frontend/dist/index.html"
     }
   ],
   "installCommand": "npm install --prefix backend && npm install --prefix frontend && npm install"
