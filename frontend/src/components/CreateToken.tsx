@@ -70,7 +70,6 @@ export const CreateToken = () => {
         clientRef.current = client;
 
         const apiUrl = BASE_URL;
-        console.log(apiUrl);
 
         const body = dagJSON.encode({ audience: client.did(), caps });
 
@@ -104,7 +103,7 @@ export const CreateToken = () => {
           proofs: [proof.ok],
         };
       } catch (error: any) {
-        console.error("Failed to initialize client:", error);
+        console.error("Failed to initialize client");
         setErrorMessage(
           `Failed to initialize client: ${error.message || error}.`
         );
@@ -246,11 +245,6 @@ export const CreateToken = () => {
       const jsonFile = new File([jsonBlob], metadataFileName, {
         type: "application/json",
       });
-
-      console.log("offChainMetadata:", offChainMetadata);
-      console.log("jsonBlob.size:", jsonBlob.size);
-      console.log("jsonBlob.type:", jsonBlob.type);
-      console.log("jsonFile:", jsonFile);
 
       const jsonCid = await clientRef.current.uploadFile(jsonFile);
 
