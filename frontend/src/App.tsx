@@ -18,7 +18,8 @@ function App() {
       style={{
         backgroundImage: `url(${backdrop})`,
         backgroundOrigin: "border-box",
-        backgroundSize: "100vw",
+        backgroundPosition: "top",
+        backgroundSize: "cover  ",
         backgroundRepeat: "no-repeat",
       }}
     >

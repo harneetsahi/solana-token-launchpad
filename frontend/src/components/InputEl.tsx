@@ -33,7 +33,7 @@ export const InputEl = ({
       <input
         maxLength={max}
         id={id}
-        className={`outline-0 px-4 py-2 text-lg ${className}`}
+        className={`outline-0 px-4 sm:py-2 py-1 text-lg ${className}`}
         type={type}
         value={value}
         onChange={onChange}

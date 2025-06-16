@@ -377,13 +377,13 @@ export const CreateToken = () => {
 
   return (
     <div className=" flex items-center justify-center   ">
-      <div className="w-max  mt-10 px-14 py-12 flex flex-col items-center">
-        <h1 className=" text-3xl font-medium text-center text-zinc-200 tracking-wide pb-5 ">
+      <div className="w-full   mt-10 px-2 py-12 flex flex-col items-center">
+        <h1 className=" sm:text-3xl text-2xl font-medium text-center text-zinc-200 tracking-wide pb-5 ">
           Solana Token Launchpad
         </h1>
 
         {errorMessage && (
-          <div className="my-2 py-1 px-3 bg-red-100 border border-red-400 text-red-700 rounded-xl text-center">
+          <div className="my-2 py-1 px-3 bg-red-100 border border-red-400 text-red-700 rounded-xl text-center sm:text-md text-sm ">
             {errorMessage}
           </div>
         )}
@@ -391,7 +391,7 @@ export const CreateToken = () => {
         {mintTokenAddress === null && tsxSignature === null && (
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col items-center justify-center mt-6 gap-2 w-120"
+            className="flex flex-col items-center justify-center mt-6 gap-2 sm:w-120 w-[90%]"
           >
             <InputEl
               id="name"
