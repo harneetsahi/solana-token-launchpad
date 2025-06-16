@@ -30,6 +30,11 @@ import * as dagJSON from "@ipld/dag-json";
 import { Button } from "./Button";
 import { InputEl } from "./InputEl";
 
+const BASE_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:3000/api/w3up-delegation"
+    : "/api/w3up-delegation";
+
 export const CreateToken = () => {
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const [isDisabled, setIsDisabled] = useState(true);
@@ -56,7 +61,6 @@ export const CreateToken = () => {
 
         const client = await Client.create();
 
-        console.log("client", client);
         const caps = [
           { can: "space/blob/add" },
           { can: "upload/add" },
@@ -65,14 +69,8 @@ export const CreateToken = () => {
         ];
         clientRef.current = client;
 
-        console.log(
-          "Frontend client initial (before delegation):",
-          clientRef.current.currentSpace()
-        );
-
-        console.log("client did", client.did());
-
-        const apiUrl = `/api/w3up-delegation`;
+        const apiUrl = BASE_URL;
+        console.log(apiUrl);
 
         const body = dagJSON.encode({ audience: client.did(), caps });
 
@@ -90,20 +88,13 @@ export const CreateToken = () => {
         const delegatedSpaceDidFromProof = proof.ok.capabilities[0]?.with;
 
         if (!delegatedSpaceDidFromProof) {
-          console.error("Delegation proof missing 'with' field for space DID.");
           setErrorMessage("Delegation proof did not specify a space to use.");
           return;
         }
 
         const space = await clientRef.current.addSpace(proof.ok);
-        console.log("Result of client.addSpace(proof.ok):", space.did());
 
         await clientRef.current.setCurrentSpace(space.did());
-
-        console.log(
-          "Frontend client current space AFTER setCurrentSpace:",
-          clientRef.current.currentSpace().did()
-        );
 
         setIsClientReady(true);
 
@@ -177,7 +168,8 @@ export const CreateToken = () => {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
 
-  async function handleSubmit() {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setErrorMessage(null);
     setMintTokenAddress(null);
     setTsxSignature(null);
@@ -208,7 +200,7 @@ export const CreateToken = () => {
       return;
     }
 
-    ///////
+    //
 
     setIsSubmittingToken(true);
 
@@ -221,8 +213,6 @@ export const CreateToken = () => {
       const freezeAuthority = publicKey;
 
       const metadataFileName = `metadata_${Date.now()}.json`;
-
-      console.log(clientRef.current.currentSpace().did());
 
       const imageCid = await clientRef.current.uploadFile(formData.imageFile);
 
@@ -248,8 +238,6 @@ export const CreateToken = () => {
           creators: [{ address: publicKey.toBase58(), share: 100 }],
         },
       };
-
-      console.log("Uploading JSON metadata to Storacha (IPFS)...");
 
       const jsonBlob = new Blob([JSON.stringify(offChainMetadata)], {
         type: "application/json",
@@ -372,10 +360,7 @@ export const CreateToken = () => {
 
       await connection.confirmTransaction(signature, "confirmed");
 
-      const chainMetadata = await getTokenMetadata(
-        connection,
-        keypair.publicKey
-      );
+      await getTokenMetadata(connection, keypair.publicKey);
 
       setMintTokenAddress(keypair.publicKey.toBase58());
       setTsxSignature(signature);
@@ -411,7 +396,6 @@ export const CreateToken = () => {
 
         {mintTokenAddress === null && tsxSignature === null && (
           <form
-            action="#"
             onSubmit={handleSubmit}
             className="flex flex-col items-center justify-center mt-6 gap-2 w-120"
           >

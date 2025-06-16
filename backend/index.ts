@@ -1,9 +1,10 @@
 import "dotenv/config";
 import express, { Request, Response, Router } from "express";
 import cors from "cors";
-import { CarReader } from "@ipld/car";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 import * as dagJSON from "@ipld/dag-json";
-import * as DID from "@ipld/dag-ucan/did";
 import * as Delegation from "@ucanto/core/delegation";
 import * as Proof from "@web3-storage/w3up-client/proof";
 import * as Signer from "@ucanto/principal/ed25519";
@@ -16,10 +17,19 @@ const PROOF = process.env.DELEGATION_PROOF || "";
 //
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const PORT = process.env.PORT || 3001;
-app.use(cors({ origin: "*" }));
 
 app.use(express.json());
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production" ? false : ["http://localhost:5173"],
+    methods: ["GET", "POST", "DELETE", "PUT"],
+  })
+);
 
 const router = Router();
 
@@ -41,18 +51,7 @@ async function delegationRequestHandler(req: Request, res: Response) {
   }
   const delegationReq: any = dagJSON.decode(Buffer.concat(chunks));
 
-  ///!SECTION
-
-  const backendAgentDID = principal.did(); // Get the DID of this backend agent
-
-  console.log(
-    "Backend Agent DID (derived from AGENT_PRIVATE_KEY):",
-    backendAgentDID
-  );
-
-  const backendClient = await Client.create({ principal, store });
-
-  console.log("Backend Client's Agent DID:", backendClient.agent.did()); // Should match backendAgentDID
+  //
 
   const delegation = await Delegation.delegate({
     issuer: principal,
@@ -67,27 +66,24 @@ async function delegationRequestHandler(req: Request, res: Response) {
     expiration: Math.floor(Date.now() / 1000) + 60 * 60 * 98,
   });
 
-  console.log("--- Backend DELEGATION_PROOF Details ---");
-  console.log("Proof Issuer (Who issued this delegation):", proof.issuer.did());
-  console.log(
-    "Proof Audience (Who this delegation is for):",
-    proof.audience.did()
-  );
-  // console.log(
-  //   "Proof Capabilities:",
-  //   proof.capabilities.map((c) => ({ can: c.can, with: c.with }))
-  // );
-  console.log("Proof Expiration (Unix timestamp):", proof.expiration);
-
   const archive = await delegation.archive(); // serialize delegation to CAR format
   res.write(archive.ok);
   res.end();
 }
 
 //
+
 router.route("/api/w3up-delegation").post(delegationRequestHandler);
 
 app.use(router);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
