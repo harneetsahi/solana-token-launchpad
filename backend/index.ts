@@ -4,6 +4,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import job from "./config/cron.js";
 import * as dagJSON from "@ipld/dag-json";
 import * as Delegation from "@ucanto/core/delegation";
 import * as Proof from "@web3-storage/w3up-client/proof";
@@ -15,6 +16,7 @@ const KEY = process.env.AGENT_PRIVATE_KEY || "";
 const PROOF = process.env.DELEGATION_PROOF || "";
 
 //
+if (process.env.NODE_ENV === "production") job.start();
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -73,6 +75,10 @@ async function delegationRequestHandler(req: Request, res: Response) {
 //
 
 router.route("/api/w3up-delegation").post(delegationRequestHandler);
+
+app.get("/api/health", (req: Request, res: Response) => {
+  res.status(200).json({ status: "ok" });
+});
 
 app.use(router);
 
